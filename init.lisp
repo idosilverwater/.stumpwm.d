@@ -3,6 +3,9 @@
 (set-prefix-key (kbd "s-t"))
 
 
+;;;
+;;; SELF-DEFINED MAPS
+;;;
 
 (defvar *agh2o/window-map* (make-sparse-keymap))
 (defvar *agh2o/open-map* (make-sparse-keymap))
