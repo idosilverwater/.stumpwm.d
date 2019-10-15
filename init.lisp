@@ -4,7 +4,6 @@
 
 
 
-(defvar *agh2o/frame-map* (make-sparse-keymap))
 (defvar *agh2o/window-map* (make-sparse-keymap))
 (defvar *agh2o/open-map* (make-sparse-keymap))
 
@@ -13,11 +12,9 @@
 ;;;
 
 ;; MAPS
-(define-key *top-map* (kbd "s-f") '*agh2o/frame-map*)
 (define-key *top-map* (kbd "s-w") '*agh2o/window-map*)
 (define-key *top-map* (kbd "s-r") '*agh2o/open-map*)
 (define-key *top-map* (kbd "s-g") '*groups-map*)
-(define-key *top-map* (kbd "s-x") '*exchange-window-map*)
 
 ;; NAVIGATION
 (define-key *top-map* (kbd "s-n") "pull-hidden-next")
@@ -31,8 +28,8 @@
 (define-key *top-map* (kbd "s-!") "exec")
 (define-key *top-map* (kbd "s-:") "eval")
 
+(define-key *top-map* (kbd "s-b") "banish")
 (define-key *top-map* (kbd "s-e") "loadrc")
-
 (define-key *top-map* (kbd "s-l") "exec xlock")
 
 
@@ -41,15 +38,14 @@
 ;;; MAPS
 ;;;
 
-;; AGH2O/FRAME-MAP
-
-(define-key *agh2o/frame-map* (kbd "n") "fnext")
-(define-key *agh2o/frame-map* (kbd "p") "fprev")
-(define-key *agh2o/frame-map* (kbd "o") "fother")
-(define-key *agh2o/frame-map* (kbd "f") "fselect")
-(define-key *agh2o/frame-map* (kbd "R") "remove")
 
 ;; AGH2O/WINDOW-MAP
+
+(define-key *agh2o/window-map* (kbd "n") "fnext")
+(define-key *agh2o/window-map* (kbd "p") "fprev")
+(define-key *agh2o/window-map* (kbd "o") "fother")
+(define-key *agh2o/window-map* (kbd "f") "fselect")
+(define-key *agh2o/window-map* (kbd "R") "remove")
 
 (define-key *agh2o/window-map* (kbd "j") "move-focus down")
 (define-key *agh2o/window-map* (kbd "k") "move-focus up")
@@ -61,19 +57,27 @@
 (define-key *agh2o/window-map* (kbd "H") "move-window left")
 (define-key *agh2o/window-map* (kbd "L") "move-window right")
 
-(define-key *agh2o/window-map* (kbd "s") "hsplit")
-(define-key *agh2o/window-map* (kbd "v") "vsplit")
+(define-key *agh2o/window-map* (kbd "C-j") "exchange-direction down")
+(define-key *agh2o/window-map* (kbd "C-k") "exchange-direction up")
+(define-key *agh2o/window-map* (kbd "C-h") "exchange-direction left")
+(define-key *agh2o/window-map* (kbd "C-l") "exchange-direction right")
+
+
+(define-key *agh2o/window-map* (kbd "v") "hsplit")
+(define-key *agh2o/window-map* (kbd "s") "vsplit")
+(define-key *agh2o/window-map* (kbd "+") "balance-frames")
+(define-key *agh2o/window-map* (kbd "DEL") "repack-window-numbers")
+
+(define-key *agh2o/window-map* (kbd "x") "kill")
+(define-key *agh2o/window-map* (kbd "q") "delete")
 
 (define-key *agh2o/window-map* (kbd "\"") "windowlist")
-(define-key *agh2o/window-map* (kbd "f") "fullscreen")
-
-(define-key *agh2o/window-map* (kbd "x") '*exchange-window-map*)
 
 
 ;; AGH2O/OPEN-MAP
 
 (define-key *agh2o/open-map* (kbd "e") "emacs")
-(define-key *agh2o/open-map* (kbd "c") "exec gnome-terminal")
+(define-key *agh2o/open-map* (kbd "c") "exec terminator")
 (define-key *agh2o/open-map* (kbd "b") "exec chromium")
 
 
