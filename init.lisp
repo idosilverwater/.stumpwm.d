@@ -83,6 +83,10 @@
 (define-key *agh2o/open-map* (kbd "c") "exec terminator")
 (define-key *agh2o/open-map* (kbd "b") "exec chromium")
 
+;; GROUPS-MAP
+(define-key *groups-map* (kbd "g") "grouplist")
+(define-key *groups-map* (kbd "s-g") "grouplist")
+
 
 
 ;;;
