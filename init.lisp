@@ -60,10 +60,22 @@
 (define-key *agh2o/window-map* (kbd "H") "move-window left")
 (define-key *agh2o/window-map* (kbd "L") "move-window right")
 
-(define-key *agh2o/window-map* (kbd "C-j") "exchange-direction down")
-(define-key *agh2o/window-map* (kbd "C-k") "exchange-direction up")
-(define-key *agh2o/window-map* (kbd "C-h") "exchange-direction left")
-(define-key *agh2o/window-map* (kbd "C-l") "exchange-direction right")
+(defun pull-current-to-last-frame (group)
+  (let ((last-frame (tile-group-last-frame group)))
+    (when (and last-frame
+               (find last-frame (group-frames group)))
+      (pull-window (current-window) last-frame))))
+
+(defcommand (move-other tile-group) () ()
+  "pull current into last frame"
+  (pull-current-to-last-frame (current-group)))
+
+(define-key *agh2o/window-map* (kbd "O") "move-other")
+
+(define-key *agh2o/window-map* (kbd "s-j") "exchange-direction down")
+(define-key *agh2o/window-map* (kbd "s-k") "exchange-direction up")
+(define-key *agh2o/window-map* (kbd "s-h") "exchange-direction left")
+(define-key *agh2o/window-map* (kbd "s-l") "exchange-direction right")
 
 
 (define-key *agh2o/window-map* (kbd "v") "hsplit")
