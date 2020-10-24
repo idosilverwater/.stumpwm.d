@@ -71,6 +71,10 @@
 (define-key *agh2o/window-map* (kbd "+") "balance-frames")
 (define-key *agh2o/window-map* (kbd "DEL") "repack-window-numbers")
 
+(defcommand agh2o/window-pull ()
+  (windows))
+
+(define-key *agh2o/window-map* (kbd "w") "pull-from-windowlist")
 (define-key *agh2o/window-map* (kbd "x") "kill")
 (define-key *agh2o/window-map* (kbd "q") "delete")
 
