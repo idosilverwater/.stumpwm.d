@@ -10,6 +10,41 @@
 (defvar *agh2o/window-map* (make-sparse-keymap))
 (defvar *agh2o/open-map* (make-sparse-keymap))
 
+(defparameter *en-to-he-symkey* (make-hash-table :test 'equal))
+(setf (gethash "t" *en-to-he-symkey*) "hebrew_aleph")
+(setf (gethash "c" *en-to-he-symkey*) "hebrew_beth")
+(setf (gethash "d" *en-to-he-symkey*) "hebrew_gimmel")
+(setf (gethash "s" *en-to-he-symkey*) "hebrew_daleth")
+(setf (gethash "v" *en-to-he-symkey*) "hebrew_he")
+(setf (gethash "u" *en-to-he-symkey*) "hebrew_waw")
+(setf (gethash "z" *en-to-he-symkey*) "hebrew_zayin")
+(setf (gethash "j" *en-to-he-symkey*) "hebrew_het")
+(setf (gethash "y" *en-to-he-symkey*) "hebrew_teth")
+(setf (gethash "h" *en-to-he-symkey*) "hebrew_yod")
+(setf (gethash "l" *en-to-he-symkey*) "hebrew_finalkaph")
+(setf (gethash "f" *en-to-he-symkey*) "hebrew_kaph")
+(setf (gethash "k" *en-to-he-symkey*) "hebrew_lamed")
+(setf (gethash "o" *en-to-he-symkey*) "hebrew_finalmem")
+(setf (gethash "n" *en-to-he-symkey*) "hebrew_mem")
+(setf (gethash "i" *en-to-he-symkey*) "hebrew_finalnun")
+(setf (gethash "b" *en-to-he-symkey*) "hebrew_nun")
+(setf (gethash "x" *en-to-he-symkey*) "hebrew_samekh")
+(setf (gethash "g" *en-to-he-symkey*) "hebrew_ayin")
+(setf (gethash ";" *en-to-he-symkey*) "hebrew_finalpe")
+(setf (gethash "p" *en-to-he-symkey*) "hebrew_pe")
+(setf (gethash "m" *en-to-he-symkey*) "hebrew_zadi")
+(setf (gethash "e" *en-to-he-symkey*) "hebrew_kuf")
+(setf (gethash "r" *en-to-he-symkey*) "hebrew_resh")
+(setf (gethash "a" *en-to-he-symkey*) "hebrew_shin")
+
+(defun define-key-he (map key command)
+  (if (gethash key *en-to-he-symkey*)
+      (define-key map (kbd (gethash key *en-to-he-symkey*)) command))
+  (define-key map (kbd key) command))
+
+
+
+
 ;;;
 ;;; TOP LEVEL 
 ;;;
@@ -21,19 +56,48 @@
 
 ;; NAVIGATION
 (define-key *top-map* (kbd "s-n") "pull-hidden-next")
+(define-key *top-map* (kbd "s-p") "pull-hidden-previous")
+(define-key *top-map* (kbd "s-M-n") "next")
+(define-key *top-map* (kbd "s-M-p") "prev")
+
+(define-key *top-map* (kbd "s-o") "fother")
 (define-key *top-map* (kbd "s-o") "fother")
 
 ;; WINDOW
 (define-key *top-map* (kbd "s-f") "fullscreen")
 
+(define-key *top-map* (kbd "s-j") "move-focus down")
+(define-key *top-map* (kbd "s-k") "move-focus up")
+(define-key *top-map* (kbd "s-h") "move-focus left")
+(define-key *top-map* (kbd "s-l") "move-focus right")
+
+(define-key *top-map* (kbd "s-J") "move-window down")
+(define-key *top-map* (kbd "s-K") "move-window up")
+(define-key *top-map* (kbd "s-H") "move-window left")
+(define-key *top-map* (kbd "s-L") "move-window right")
+(define-key *top-map* (kbd "s-O") "move-other")
+
+(define-key *top-map* (kbd "s-M-j") "exchange-direction down")
+(define-key *top-map* (kbd "s-M-k") "exchange-direction up")
+(define-key *top-map* (kbd "s-M-h") "exchange-direction left")
+(define-key *top-map* (kbd "s-M-l") "exchange-direction right")
+
 ;; UTILS
 (define-key *top-map* (kbd "s-;") "colon")
-(define-key *top-map* (kbd "s-!") "exec")
+(define-key *top-map* (kbd "s-e") "exec")
 (define-key *top-map* (kbd "s-:") "eval")
 
+(define-key *top-map* (kbd "s-i") "exec keynav")
+
 (define-key *top-map* (kbd "s-b") "banish")
-(define-key *top-map* (kbd "s-e") "loadrc")
-(define-key *top-map* (kbd "s-l") "exec xlock")
+(define-key *top-map* (kbd "s-E") "loadrc")
+(define-key *top-map* (kbd "s-C-l") "exec xlock")
+
+(setf stumpwm:*screen-mode-line-format*
+      (list "%w | "
+            '(:eval (stumpwm:run-shell-command "date" t))))
+
+(define-key *top-map* (kbd "s-m") "mode-line")
 
 
 
@@ -44,10 +108,13 @@
 
 ;; AGH2O/WINDOW-MAP
 
-(define-key *agh2o/window-map* (kbd "n") "fnext")
+
+(define-key-he *agh2o/window-map* "n" "fnext")
 (define-key *agh2o/window-map* (kbd "p") "fprev")
 (define-key *agh2o/window-map* (kbd "o") "fother")
 (define-key *agh2o/window-map* (kbd "f") "fselect")
+(define-key *agh2o/window-map* (kbd "f") "fselect")
+(define-key *agh2o/window-map* (kbd "r") "remove")
 (define-key *agh2o/window-map* (kbd "R") "remove")
 
 (define-key *agh2o/window-map* (kbd "j") "move-focus down")
