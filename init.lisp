@@ -117,3 +117,105 @@
 
 (undefine-key *root-map* (kbd "F11"))
 
+
+;(setf *message-window-gravity* :top-right)
+;(setf *input-window-gravity* :top-right)
+
+(set-font "-b&h-lucidatypewriter-medium-r-normal-sans-11-80-100-100-m-70-iso10646-1")
+;(set-bg-color "black")
+;(set-fg-color "antiquewhite")
+;(set-border-color "lightgreen")
+(set-unfocus-color "darkgray")
+(setf *window-border-style* :thin)
+
+(set-fg-color "GreenYellow")
+(set-bg-color "#001921")
+(set-msg-border-width 1)
+(set-border-color "#001921")
+(setf *message-window-padding* 50)
+(setf *message-window-gravity* :top
+      *input-window-gravity* :top)
+
+;;;;;
+;;;;; MODELINE
+;;;;;
+
+;(load-module "battery-portable")
+;(load-module "wifi")
+;(load-module "maildir")
+;; "[^B%n^b] %W"
+;; "%n%s%t"
+;; "%m%n%s%50t"
+;; "%a %b %e %k:%M:%S"
+
+;;(load-conf-file "kb-layout.lisp")
+
+(setf *bar-med-color* "^B^8")
+(setf *bar-hi-color* "^B^3")
+(setf *bar-crit-color* "^B^1")
+
+(setf *colors*
+      '("black"
+        "red"
+        "green"
+        "yellow"
+        "blue"
+        "magenta"
+        "cyan"
+        "white"
+        "GreenYellow"
+        "#009696"))
+
+(update-color-map (current-screen))
+
+(setf *group-format* " %t ")
+;; (setf *window-format* "%m%50t ")
+(setf *window-format* "%m%n%s%20t ")
+(setf *mode-line-timeout* 1)
+
+(setf *time-modeline-string* "^9 • %e, %a^n^B %l:%M ^b")
+
+(defun get-date-modeline ()
+  (stumpwm:run-shell-command
+   (format nil "date +\"~A\""
+           *time-modeline-string*) t))
+
+(defun get-layout-modeline ()
+  (if (= 0 (get-current-layout))
+      "^3 en ^n"
+      "^3^R ru ^r^n"))
+
+
+(defvar jabber-message-count "0")
+
+(setf jabber-message-count "0")
+
+(defun get-jabber-message-count ()
+  (if (equal "0" jabber-message-count)
+      " • "
+      (format nil "^R ~A ^r" jabber-message-count)))
+
+
+(setf *screen-mode-line-format*
+      (list "^B^3 %g ^n^b %W ^> "
+            ;; '(:eval (get-layout-modeline))
+            "  "
+            ;; "^3%M^n"
+            ;; '(:eval (get-jabber-message-count))
+            "%I "
+            "^B^2^n^b%B "
+            '(:eval (get-date-modeline))))
+
+
+(setf *mode-line-border-width* 0)
+(setf *mode-line-background-color* "#000809")
+(setf *mode-line-foreground-color* "DeepSkyBlue")
+
+(if (not (head-mode-line (current-head)))
+    (toggle-mode-line (current-screen)
+                      (current-head)))
+
+
+;;;;;
+;;;;; END MODELINE
+;;;;;
