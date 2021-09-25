@@ -1,7 +1,7 @@
 (in-package :stumpwm)
+(ql:quickload "cl-ppcre")
 
 (set-prefix-key (kbd "s-t"))
-
 
 ;;;
 ;;; SELF-DEFINED MAPS
@@ -9,8 +9,10 @@
 
 (defvar *agh2o/window-map* (make-sparse-keymap))
 (defvar *agh2o/open-map* (make-sparse-keymap))
+(defvar *agh2o/connect-map* (make-sparse-keymap))
 
 (defparameter *en-to-he-symkey* (make-hash-table :test 'equal))
+
 (setf (gethash "t" *en-to-he-symkey*) "hebrew_aleph")
 (setf (gethash "c" *en-to-he-symkey*) "hebrew_beth")
 (setf (gethash "d" *en-to-he-symkey*) "hebrew_gimmel")
@@ -53,6 +55,7 @@
 (define-key *top-map* (kbd "s-w") '*agh2o/window-map*)
 (define-key *top-map* (kbd "s-r") '*agh2o/open-map*)
 (define-key *top-map* (kbd "s-g") '*groups-map*)
+(define-key *top-map* (kbd "s-c") '*agh2o/connect-map*)
 
 ;; NAVIGATION
 (define-key *top-map* (kbd "s-n") "pull-hidden-next")
@@ -93,11 +96,25 @@
 (define-key *top-map* (kbd "s-E") "loadrc")
 (define-key *top-map* (kbd "s-C-l") "exec xlock")
 
+
 (setf stumpwm:*screen-mode-line-format*
       (list "%w | "
             '(:eval (stumpwm:run-shell-command "date" t))))
 
 (define-key *top-map* (kbd "s-m") "mode-line")
+
+
+(defun eval-python (statement)
+  "evaluate python statement"
+  (let ((command (concatenate 'string "python -c \"print(" statement ")\"")))
+    (stumpwm:run-shell-command command t)))
+
+(defcommand run-python (python-statement) ((:string ": "))
+  "get python statement and evaluate"
+  (echo python-statement)
+  (let* ((result (eval-python python-statement)))
+    (echo result)))
+
 
 
 
@@ -137,6 +154,18 @@
   "pull current into last frame"
   (pull-current-to-last-frame (current-group)))
 
+(defcommand (send-space-other tile-group) () ()
+  "type space in other window (to stop youtube playing in other)"
+  (let* ((cur-win (current-window))
+         (last-frame (tile-group-last-frame (current-group)))
+         (wins (frame-windows (current-group) last-frame))
+         (current-window-in-frame (first wins)))
+    (focus-window current-window-in-frame)
+    (window-send-string "k" current-window-in-frame)
+    (focus-window cur-win)))
+
+(define-key *agh2o/window-map* (kbd "SPC") "send-space-other")
+
 (define-key *agh2o/window-map* (kbd "O") "move-other")
 
 (define-key *agh2o/window-map* (kbd "s-j") "exchange-direction down")
@@ -169,8 +198,6 @@
 ;; GROUPS-MAP
 (define-key *groups-map* (kbd "g") "grouplist")
 (define-key *groups-map* (kbd "s-g") "grouplist")
-
-
 
 ;;;
 ;;; Undefine Key Bindings
@@ -257,7 +284,7 @@
 
 (setf *group-format* " %t ")
 ;; (setf *window-format* "%m%50t ")
-(setf *window-format* "%m%n%s%20t ")
+(setf *window-format* "%m%n%s%100t ")
 (setf *mode-line-timeout* 1)
 
 (setf *time-modeline-string* "^9 • %e, %a^n^B %l:%M ^b")
@@ -306,3 +333,64 @@
 ;;;;;
 ;;;;; END MODELINE
 ;;;;;
+
+;;; start audio
+;(setf *key-codes*
+;  '((162 . "XF86AudioPlay")       ; handled by amarok (or other mp3 players)
+;    (164 . "XF86AudioStop")
+;    (144 . "XF86AudioPrev")
+;    (153 . "XF86AudioNext")
+;    (160 . "XF86AudioMute")
+;    (174 . "XF86AudioLowerVolume")     ; we use amixer (alsa mixer) to  handle this
+;    (176 . "XF86AudioRaiseVolume"))
+;
+;;; Map keycodes to keysyms
+;(mapcar (lambda (pair))
+;    (let* ((keycode (car pair)))
+;     (keysym  (cdr pair))
+;     (format-dest nil)
+;     (format-dest (make-array 5 :fill-pointer 0 :adjustable t :element-type 'character)
+;      (format format-dest "xmodmap -e 'keycode ~d = ~a'" keycode keysym)
+;      (run-shell-command format-dest))
+;    format-dest
+;  *key-codes*)
+
+(defun get-volume ()
+  "Get current volume"
+  (run-shell-command "bash -c \"pactl increase volumelist sinks | grep '^[[:space:]]Volume:' | head -n $(( 0 + 1 )) | tail -n 1 | sed -e 's,.* \([0-9][0-9]*\)%.*,\1,'\"" T))
+
+(defcommand decrease-volume () ()
+  "decrease volume"
+  (run-shell-command "pactl set-sink-volume 0 -5%")
+  (echo (get-volume)))
+
+(defcommand increase-volume () ()
+  "increase volume"
+  (run-shell-command "pactl set-sink-volume 0 +5%")
+  (echo (get-volume)))
+
+(defcommand toggle-mute () ()
+  "increase volume"
+  (run-shell-command "exec pactl set-sink-mute 0 toggle"))
+
+
+
+(define-key stumpwm:*top-map* (stumpwm:kbd "XF86AudioLowerVolume") "decrease-volume")
+(define-key stumpwm:*top-map* (stumpwm:kbd "XF86AudioRaiseVolume") "increase-volume")
+(define-key stumpwm:*top-map* (stumpwm:kbd "XF86AudioMute") "toggle-mute")
+
+
+
+(defcommand connect-to-bluetooth-device () ()
+  "connect-to-bluetooth-device"
+  (let* ((device-list-str (run-shell-command "bluetoothctl devices" t))
+         (device-list (cdr (split-string
+                            ;; #\NewLine       ;
+                            device-list-str)))
+         (selected-device-str (select-from-menu (current-screen) device-list))
+         (selected-mac (ppcre:register-groups-bind (mac-addr)
+                                                   ("\\s([\\S]+)" selected-device-str :sharedp t)
+                                                   mac-addr)))
+    (run-shell-command (concatenate 'string "bluetoothctl connect " selected-mac)))
+
+  (define-key *agh2o/connect-map* (kbd "b") "connect-to-bluetooth-device"))
